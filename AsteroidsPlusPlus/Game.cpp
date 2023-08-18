@@ -19,12 +19,12 @@ AsteroidsGame::AsteroidsGame(GPU_Target* screen)
 	GPU_LoadTarget(this->internal_buffer_burn_in);
 	GPU_LoadTarget(this->flash);
 
-	GPU_ClearRGBA(this->flash->target, 255, 0, 0, 64);
+	GPU_ClearRGBA(this->flash->target, 128, 0, 0, 32);
 
-	this->retro_shader = Shader("shaders/retro");
+	this->retro_shader = Shader("resources/shaders/retro");
 	this->stars = Stars(screen->w, screen->h, 3, 0.0015);;
 	this->ship = SpaceShip(screen->w, screen->h);
-	this->psystem = ParticleSystem(glm::vec2(screen->w, screen->h), "shaders/particle");
+	this->psystem = ParticleSystem(glm::vec2(screen->w, screen->h), "resources/shaders/particle");
 
 	this->burn_in_timer = Timer(2000);
 	this->cool_down_timer = Timer(PROJECTILE_COOLDOWN_MS);
@@ -33,12 +33,13 @@ AsteroidsGame::AsteroidsGame(GPU_Target* screen)
 	resolution_data[0] = screen->w;
 	resolution_data[1] = screen->h;
 
-	this->shoot_sound = Mix_LoadWAV("sound/shoot.wav");
-	this->asteroid_sound = Mix_LoadWAV("sound/asteroid.wav");
-	this->warn_sound = Mix_LoadWAV("sound/warn.wav");
-	this->song = Mix_LoadMUS("sound/asteroids.mp3");
-	this->song_gameover = Mix_LoadMUS("sound/over.mp3");
-	
+	this->shoot_sound = Mix_LoadWAV("resources/sound/shoot.wav");
+	this->asteroid_sound = Mix_LoadWAV("resources/sound/asteroid.wav");
+	this->destroyed_sound = Mix_LoadWAV("resources/sound/destroyed.wav");
+	this->warn_sound = Mix_LoadWAV("resources/sound/warn.wav");
+	this->song = Mix_LoadMUS("resources/sound/asteroids.mp3");
+	this->song_gameover = Mix_LoadMUS("resources/sound/over.mp3");
+
 	GPU_SetLineThickness(this->line_thickness);
 }
 
@@ -50,8 +51,7 @@ void AsteroidsGame::IntroFrame(float delta_time)
 	}
 
 	this->AnimateTextOffset(delta_time);
-	this->psystem.Update(delta_time);
-
+	
 	GPU_DeactivateShaderProgram();
 	
 	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.33, this->internal_buffer->h * 0.35 + this->text_offset, 4.0f, "ASTEROIDS++");
@@ -79,11 +79,6 @@ void AsteroidsGame::GameOverFrame(float delta_time)
 
 void AsteroidsGame::GameFrame(float delta_time)
 {
-	if (state.lives < 0)
-	{
-		this->GameOver();
-	}
-
 	if (key_states['A'])
 		this->ship.rotation_speed += Clamp(SPACESHIP_ROTATION_ACCEL * delta_time, 0.0f, SPACESHIP_MAX_ROTATION_SPEED);
 
@@ -234,10 +229,10 @@ void AsteroidsGame::GameFrame(float delta_time)
 	/* Draw Stars */
 	this->stars.Draw(this->internal_buffer->target);
 
-	if (ship.blinking && !ship.blinking_state)
+	if (ship.blinking && !ship.blinking_state && state.lives >= 0)
 	{
 		GPU_Blit(this->flash, NULL, this->internal_buffer->target, this->internal_buffer->w / 2, this->internal_buffer->h / 2);
-		HUD.font.DrawText(this->internal_buffer->target, screen->w * 0.28, screen->h * 0.35, 8.0f, "HIT TAKEN!", { 255, 255, 0, 255 });
+		HUD.font.DrawText(this->internal_buffer->target, screen->w * 0.1, screen->h * 0.35, 6.0f, "** CRITICAL DAMAGE **", { 255, 255, 0, 255 });
 	}
 
 	/* Update and Draw Ship */
@@ -257,35 +252,52 @@ void AsteroidsGame::GameFrame(float delta_time)
 	this->psystem.Draw(this->internal_buffer->target);
 
 
-	HUD.Draw(this->internal_buffer->target, state);
+	if (state.lives < 0)
+	{
+		this->GameOver();
+	}
+	// Don't draw HUD if game over, cuz I don't like ARMOR: -33%
+	else
+	{
+		HUD.Draw(this->internal_buffer->target, state);
+	}
 }
 void AsteroidsGame::Frame(float delta_time)
 {
-	GPU_DeactivateShaderProgram();
-	/* Check if time has passed to clean up the burn in buffer */
-	if (this->burn_in_timer.Elapsed())
+	
+	/* Check if we have to wait */
+	if (this->waiting_time > 0.0f)
 	{
-		GPU_Clear(this->internal_buffer_burn_in->target);
-		burn_in_timer.Reset();
-		last_burn_in_time = SDL_GetTicks64();
+		this->waiting_time -= delta_time;
 	}
-	/* Blit the last frame onto the burn in source */
-	GPU_Blit(this->internal_buffer, NULL, this->internal_buffer_burn_in->target, this->internal_buffer_burn_in->w / 2, this->internal_buffer_burn_in->h / 2);
-	GPU_Clear(this->internal_buffer->target);
-
-	switch (this->state.screen)
+	else
 	{
-	case ASTEROID_GAME:
-		this->GameFrame(delta_time);
-		break;
-	case ASTEROID_INTRO_SCREEN:
-		this->IntroFrame(delta_time);
-		break;
-	case ASTEROID_GAME_OVER:
-		this->GameOverFrame(delta_time);
-		break;
-	default:
-		break;
+		GPU_DeactivateShaderProgram();
+		/* Check if time has passed to clean up the burn in buffer */
+		if (this->burn_in_timer.Elapsed())
+		{
+			GPU_Clear(this->internal_buffer_burn_in->target);
+			burn_in_timer.Reset();
+			last_burn_in_time = SDL_GetTicks64();
+		}
+		/* Blit the last frame onto the burn in source */
+		GPU_Blit(this->internal_buffer, NULL, this->internal_buffer_burn_in->target, this->internal_buffer_burn_in->w / 2, this->internal_buffer_burn_in->h / 2);
+		GPU_Clear(this->internal_buffer->target);
+
+		switch (this->state.screen)
+		{
+		case ASTEROID_GAME:
+			this->GameFrame(delta_time);
+			break;
+		case ASTEROID_INTRO_SCREEN:
+			this->IntroFrame(delta_time);
+			break;
+		case ASTEROID_GAME_OVER:
+			this->GameOverFrame(delta_time);
+			break;
+		default:
+			break;
+		}
 	}
 	
 	/* Post-Processing */
@@ -315,15 +327,17 @@ void AsteroidsGame::Reset(void)
 
 void AsteroidsGame::GameOver()
 {
-	this->Reset();
 	this->state.screen = ASTEROID_GAME_OVER;
 	this->text_offset = BEGIN_TEXT_OFFSET;
+	Mix_PlayChannel(-1, destroyed_sound, 0);
 	Mix_HaltMusic();
 	Mix_PlayMusic(this->song_gameover, -1);
+	this->WaitingTime(1.0f);
 }
 
 void AsteroidsGame::BeginGame()
 {
+	this->Reset();
 	this->state.screen = ASTEROID_GAME;
 	Mix_HaltMusic();
 	Mix_PlayMusic(this->song, -1);
@@ -414,3 +428,7 @@ void AsteroidsGame::HandleEvent(SDL_Event ev, float delta_time)
 	}
 }
 
+void AsteroidsGame::WaitingTime(float seconds)
+{
+	this->waiting_time = seconds;
+}

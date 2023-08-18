@@ -18,6 +18,7 @@
 #define MAX_ASTEROIDS 5
 #define BEGIN_TEXT_OFFSET 400.0f
 #define N_PARTICLES_ON_ASTEROID_EXPLODE 15
+
 class AsteroidsGame
 {
 public:
@@ -42,6 +43,7 @@ public:
 	Mix_Chunk* shoot_sound;
 	Mix_Chunk* asteroid_sound;
 	Mix_Chunk* warn_sound;
+	Mix_Chunk* destroyed_sound;
 	Mix_Music* song;
 	Mix_Music* song_gameover;
 
@@ -62,9 +64,10 @@ public:
 		{ '\n', false }
 	};
 
+	float waiting_time = 0.0f;
+
 	AsteroidsGame(GPU_Target*);
 	void Frame(float delta_time);
-
 	/* Function to draw the game */
 	void GameFrame(float delta_time);
 	/* Function to draw the intro screen */
@@ -77,6 +80,8 @@ public:
 	void BeginGame();
 	/* For animating the text offset */
 	void AnimateTextOffset(float delta_time);
+	/* Make the game wait */
+	void WaitingTime(float seconds);
 
 	void HandleEvent(SDL_Event ev, float delta_time);
 	void Reset(void);

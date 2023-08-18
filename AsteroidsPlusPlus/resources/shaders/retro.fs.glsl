@@ -1,5 +1,3 @@
-#version 330
-
 #define PI  3.14159265358
 #define TAU 6.28318530718
 in vec4 color;
@@ -29,7 +27,7 @@ const float crt_noise_fraction = 0.10;
 // CRT Effect settings
 float scanline_opacity = 0.3;
 float scanline_density = 0.8;
-float warp = 1.0; 
+float warp = 2.0; 
 float scan = 0.75;
 float scanline_intensity = 0.15;
 float vigenette_intensity = 0.5;

@@ -5,7 +5,7 @@
 
 BitmapFont::BitmapFont(void)
 {
-	this->text_shader = Shader("shaders/text");
+	this->text_shader = Shader("resources/shaders/text");
 
 	SDL_Surface* font_surface = SDL_CreateRGBSurfaceFrom((void*)&VGA437_data, VGA437_font_bitmap_width, VGA437_font_bitmap_height, 8, VGA437_font_bitmap_width, 0, 0, 0, 1);
 	assert(font_surface != NULL);
