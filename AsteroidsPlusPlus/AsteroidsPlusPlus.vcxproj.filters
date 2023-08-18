@@ -48,7 +48,7 @@
     <ClCompile Include="BitmapFont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VGA437.inc">
+    <ClCompile Include="VGA437.cpp">
       <Filter>Source Files\static_resources</Filter>
     </ClCompile>
     <ClCompile Include="GameHud.cpp">

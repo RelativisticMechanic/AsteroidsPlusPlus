@@ -1,4 +1,4 @@
-#version 420
+#version 330
 
 #define PI  3.14159265358
 #define TAU 6.28318530718
@@ -6,8 +6,8 @@ in vec4 color;
 in vec2 texCoord;
 out vec4 fragColor;
 
-layout(binding = 0) uniform sampler2D tex;
-layout(binding = 1) uniform sampler2D burn_in_source;
+uniform sampler2D tex;
+uniform sampler2D burn_in_source;
 
 uniform float time;
 uniform vec2 resolution;
@@ -29,7 +29,7 @@ const float crt_noise_fraction = 0.10;
 // CRT Effect settings
 float scanline_opacity = 0.3;
 float scanline_density = 0.8;
-float warp = 4.0; 
+float warp = 1.0; 
 float scan = 0.75;
 float scanline_intensity = 0.15;
 float vigenette_intensity = 0.5;

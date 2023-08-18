@@ -10,6 +10,7 @@
 #define ASTEROID_DEFAULT_DEVIATION 0.2f
 #define ASTEROID_MIN_RADIUS 16
 #define ASTEROID_STARTING_SPEED 250.0f  
+#define ASTEROID_COLOR {255, 255, 255, 255}
 
 class Asteroid : public GameEntity
 {

@@ -1,10 +1,10 @@
-#version 420
+#version 330
 
 in vec4 color;
 in vec2 texCoord;
 out vec4 fragColor;
 
-layout(binding = 0) uniform sampler2D tex;
+uniform sampler2D tex;
 uniform float time;
 uniform float particle_size;
 

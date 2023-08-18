@@ -29,7 +29,7 @@ public:
 	{
 		this->score = 0;
 		this->lives = DEFAULT_GAME_LIVES;
-		this->round = 1;
+		this->round = 0;
 		this->screen = ASTEROID_INTRO_SCREEN;
 	}
 };

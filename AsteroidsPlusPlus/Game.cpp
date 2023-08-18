@@ -9,15 +9,22 @@ AsteroidsGame::AsteroidsGame(GPU_Target* screen)
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
 	this->screen = screen;
+	/* This is the buffer where all the frames are drawn */
 	this->internal_buffer = GPU_CreateImage(screen->w, screen->h, GPU_FORMAT_RGBA);
+	/* This one is for the burn in effect */
 	this->internal_buffer_burn_in = GPU_CreateImage(screen->w, screen->h, GPU_FORMAT_RGBA);
+	/* This one is for the flash */
+	this->flash = GPU_CreateImage(screen->w, screen->h, GPU_FORMAT_RGBA);
 	GPU_LoadTarget(this->internal_buffer);
 	GPU_LoadTarget(this->internal_buffer_burn_in);
+	GPU_LoadTarget(this->flash);
 
-	this->retro_shader = Shader("retro");
+	GPU_ClearRGBA(this->flash->target, 255, 0, 0, 64);
+
+	this->retro_shader = Shader("shaders/retro");
 	this->stars = Stars(screen->w, screen->h, 3, 0.0015);;
 	this->ship = SpaceShip(screen->w, screen->h);
-	this->psystem = ParticleSystem(glm::vec2(screen->w, screen->h), "particle");
+	this->psystem = ParticleSystem(glm::vec2(screen->w, screen->h), "shaders/particle");
 
 	this->burn_in_timer = Timer(2000);
 	this->cool_down_timer = Timer(PROJECTILE_COOLDOWN_MS);
@@ -26,11 +33,11 @@ AsteroidsGame::AsteroidsGame(GPU_Target* screen)
 	resolution_data[0] = screen->w;
 	resolution_data[1] = screen->h;
 
-	this->shoot_sound = Mix_LoadWAV("./snd/shoot.wav");
-	this->asteroid_sound = Mix_LoadWAV("./snd/asteroid.wav");
-	this->warn_sound = Mix_LoadWAV("./snd/warn.wav");
-	this->song = Mix_LoadMUS("./snd/asteroids.mp3");
-	this->song_gameover = Mix_LoadMUS("./snd/over.mp3");
+	this->shoot_sound = Mix_LoadWAV("sound/shoot.wav");
+	this->asteroid_sound = Mix_LoadWAV("sound/asteroid.wav");
+	this->warn_sound = Mix_LoadWAV("sound/warn.wav");
+	this->song = Mix_LoadMUS("sound/asteroids.mp3");
+	this->song_gameover = Mix_LoadMUS("sound/over.mp3");
 	
 	GPU_SetLineThickness(this->line_thickness);
 }
@@ -87,8 +94,8 @@ void AsteroidsGame::GameFrame(float delta_time)
 	{
 		this->ship.velocity += SPACESHIP_ACCEL * delta_time * this->ship.look_at;
 		glm::vec2 new_velocity = -this->ship.look_at * 400.0f * RandRange(0.9, 1.0);
-		new_velocity += RandVec2(50.0f);
-		this->psystem.Add(Particle(this->ship.position, new_velocity, 4.0f));
+		new_velocity += RandVec2(25.0f);
+		this->psystem.Add(Particle(this->ship.position, new_velocity, 2.0f));
 	}
 
 	if (key_states['S'])
@@ -128,11 +135,47 @@ void AsteroidsGame::GameFrame(float delta_time)
 		(*asteroid).Update(delta_time);
 		/* Check if we are colliding with player */
 		if (glm::length((*asteroid).position - ship.position) < (*asteroid).radius + ship.radius && !ship.blinking)
-		{
-			Mix_PlayChannel(-1, this->warn_sound, 1);
+		{	
 			ship.Blink();
 			state.lives -= 1;
+			if (state.lives >= 0)
+			{
+				Mix_PlayChannel(-1, this->warn_sound, 1);
+			}
 		}
+	
+		// ENABLE THIS SECTION OF CODE IF YOU WANT COLLIDING ASTEROIDS
+		// ITS KINDA COOL BUT NOT FAITHFUL TO THE ORIGINAL GAME
+
+		// Check if asteroid is colliding with other asteroids
+		for (std::vector<Asteroid>::iterator other = asteroids.begin(); other != asteroids.end(); )
+		{
+			float distance = glm::length((*asteroid).position - (*other).position);
+			float min_collision_dist = (*asteroid).radius + (*other).radius;
+			if (distance <= min_collision_dist && other != asteroid)
+			{
+				// We simulate an elastic collision where the component of velocity
+				// perpendicular to the collision normal is inversed.
+				glm::vec2 normal_direction = glm::normalize((*other).position - (*asteroid).position);
+
+				// Dot product tells me the component of velocity in the direction of 
+				glm::vec2 normal_velocity = glm::dot((*asteroid).velocity, normal_direction) * normal_direction;
+				glm::vec2 other_normal_velocity = glm::dot((*other).velocity, -normal_direction) * (-normal_direction);
+
+				// Inverse the component of normal velocities
+				(*asteroid).velocity -= 2.0f * normal_velocity;
+				(*other).velocity -= 2.0f * other_normal_velocity;
+
+				// Push the asteroids back to a safe distance (this prevents multiple collisions from happening)
+				float push_back = (min_collision_dist - distance) * 0.5f;
+
+				(*asteroid).position -= normal_direction * push_back;
+				(*other).position += normal_direction * push_back;
+			}
+
+			other++;
+		}
+		
 
 		/* Check if this asteroid is colliding with any projectile */
 		for (auto& projectile : projectiles)
@@ -142,7 +185,7 @@ void AsteroidsGame::GameFrame(float delta_time)
 				/* Add some particles */
 				for (int i = 0; i < N_PARTICLES_ON_ASTEROID_EXPLODE; i++)
 				{
-					this->psystem.Add(Particle(projectile.position, RandVec2(200.0f), 8.0f));
+					this->psystem.Add(Particle(projectile.position, RandVec2(200.0f), 4.0f));
 				}
 
 				/* Play asteroid sound */
@@ -191,6 +234,12 @@ void AsteroidsGame::GameFrame(float delta_time)
 	/* Draw Stars */
 	this->stars.Draw(this->internal_buffer->target);
 
+	if (ship.blinking && !ship.blinking_state)
+	{
+		GPU_Blit(this->flash, NULL, this->internal_buffer->target, this->internal_buffer->w / 2, this->internal_buffer->h / 2);
+		HUD.font.DrawText(this->internal_buffer->target, screen->w * 0.28, screen->h * 0.35, 8.0f, "HIT TAKEN!", { 255, 255, 0, 255 });
+	}
+
 	/* Update and Draw Ship */
 	this->ship.Frame(this->internal_buffer->target, delta_time);
 
@@ -206,6 +255,8 @@ void AsteroidsGame::GameFrame(float delta_time)
 	}
 
 	this->psystem.Draw(this->internal_buffer->target);
+
+
 	HUD.Draw(this->internal_buffer->target, state);
 }
 void AsteroidsGame::Frame(float delta_time)

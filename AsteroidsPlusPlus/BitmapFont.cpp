@@ -5,13 +5,15 @@
 
 BitmapFont::BitmapFont(void)
 {
+	this->text_shader = Shader("shaders/text");
+
 	SDL_Surface* font_surface = SDL_CreateRGBSurfaceFrom((void*)&VGA437_data, VGA437_font_bitmap_width, VGA437_font_bitmap_height, 8, VGA437_font_bitmap_width, 0, 0, 0, 1);
 	assert(font_surface != NULL);
 
 	/* Set the palette colors accordingly 0 = black, 255 = white */
 	SDL_Color colors[2];
 	colors[0] = { 0, 0, 0, 0 };
-	colors[1] = { 0, 128, 0, 255 };
+	colors[1] = { 0, 100, 0, 255 };
 
 	SDL_SetPaletteColors(font_surface->format->palette, colors, 0, 2);
 	/* Make black transparent */
@@ -56,8 +58,13 @@ GPU_Image* BitmapFont::GetGlyph(unsigned char c)
 	return this->characters[c];
 }
 
-void BitmapFont::DrawText(GPU_Target* t, int x, int y, float scale, const char* txt)
+void BitmapFont::DrawText(GPU_Target* t, int x, int y, float scale, const char* txt, SDL_Color color)
 {
+	float text_color[3] = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f };
+
+	this->text_shader.ActivateShader();
+	GPU_SetUniformfv(this->text_shader.UniformLocation("text_color"), 3, 1, (float*) & text_color);
+
 	int n = strlen(txt);
 	int curr_x = x;
 	int curr_y = y;

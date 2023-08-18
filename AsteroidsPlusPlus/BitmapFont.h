@@ -1,5 +1,7 @@
 #pragma once
 #include "SDL_gpu.h"
+#include "Shader.h"
+
 #include <cstdint>
 #include <string>
 
@@ -19,10 +21,11 @@ public:
 	int GetXAdvance();
 	int GetYAdvance();
 
-	void DrawText(GPU_Target* t, int x, int y, float scale, const char* txt);
+	void DrawText(GPU_Target* t, int x, int y, float scale, const char* txt, SDL_Color color = { 0, 128, 0, 255 });
 
 private:
 	GPU_Image* characters[256];
 	GPU_Image* font_bitmap;
 	int char_width, char_height;
+	Shader text_shader;
 };

@@ -49,12 +49,12 @@ void Asteroid::Draw(GPU_Target* t)
 	{
 		glm::vec2 p1 = this->position + render_points[i];
 		glm::vec2 p2 = this->position + render_points[i+1];
-		GPU_Line(t, p1.x, p1.y, p2.x, p2.y, { 255, 255, 255, 255 });
+		GPU_Line(t, p1.x, p1.y, p2.x, p2.y, ASTEROID_COLOR);
 	}
 
 	glm::vec2 p1 = this->position + render_points[0];
 	glm::vec2 pf = this->position + render_points[ASTEROID_RESOLUTION - 1];
-	GPU_Line(t, p1.x, p1.y, pf.x, pf.y, { 255, 255, 255, 255 });
+	GPU_Line(t, p1.x, p1.y, pf.x, pf.y, ASTEROID_COLOR);
 }
 
 std::vector<Asteroid> Asteroid::Split(glm::vec2 velocity_dir)

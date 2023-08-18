@@ -251,7 +251,7 @@
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="VGA437.inc">
+    <ClCompile Include="VGA437.cpp">
       <FileType>Document</FileType>
     </ClCompile>
   </ItemGroup>

@@ -11,7 +11,7 @@ SpaceShip::SpaceShip(int SCREEN_W, int SCREEN_H)
 	this->size = 30.0;
 	this->rotation_speed = 0.0f;
 	this->velocity = glm::vec2(0.0f, 0.0f);
-	this->toggle_blink_timer = Timer(2000.0f);
+	this->toggle_blink_timer = Timer(SPACESHIP_HIT_COOLDOWN_TIME_MS);
 	this->toggle_blink_state_timer = Timer(100.0f);
 }
 
@@ -95,18 +95,18 @@ void SpaceShip::Frame(GPU_Target* t, float delta_time)
 
 		if (this->blinking_state)
 		{
-			GPU_Line(t, v1.x, v1.y, v2.x, v2.y, { 255, 0, 0, 255 });
-			GPU_Line(t, v1.x, v1.y, v3.x, v3.y, { 255, 0, 0, 255 });
-			GPU_Line(t, v2.x, v2.y, this->position.x, this->position.y, { 255, 0, 0, 255 });
-			GPU_Line(t, v3.x, v3.y, this->position.x, this->position.y, { 255, 0, 0, 255 });
+			GPU_Line(t, v1.x, v1.y, v2.x, v2.y, SPACESHIP_FLASHING_COLOR);
+			GPU_Line(t, v1.x, v1.y, v3.x, v3.y, SPACESHIP_FLASHING_COLOR);
+			GPU_Line(t, v2.x, v2.y, this->position.x, this->position.y, SPACESHIP_FLASHING_COLOR);
+			GPU_Line(t, v3.x, v3.y, this->position.x, this->position.y, SPACESHIP_FLASHING_COLOR);
 
 		}
 	}
 	else
 	{
-		GPU_Line(t, v1.x, v1.y, v2.x, v2.y, { 255, 255, 255, 255 });
-		GPU_Line(t, v1.x, v1.y, v3.x, v3.y, { 255, 255, 255, 255 });
-		GPU_Line(t, v2.x, v2.y, this->position.x, this->position.y, { 255, 255, 255, 255 });
-		GPU_Line(t, v3.x, v3.y, this->position.x, this->position.y, { 255, 255, 255, 255 });
+		GPU_Line(t, v1.x, v1.y, v2.x, v2.y, SPACESHIP_DEFAULT_COLOR);
+		GPU_Line(t, v1.x, v1.y, v3.x, v3.y, SPACESHIP_DEFAULT_COLOR);
+		GPU_Line(t, v2.x, v2.y, this->position.x, this->position.y, SPACESHIP_DEFAULT_COLOR);
+		GPU_Line(t, v3.x, v3.y, this->position.x, this->position.y, SPACESHIP_DEFAULT_COLOR);
 	}
 }

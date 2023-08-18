@@ -12,14 +12,12 @@
 #include "GameState.h"
 #include "GameHud.h"
 #include "Particle.h"
-
 #include <map>
 
 #define ASTEROID_SCORE_MULTIPLIER 10
 #define MAX_ASTEROIDS 5
 #define BEGIN_TEXT_OFFSET 400.0f
 #define N_PARTICLES_ON_ASTEROID_EXPLODE 15
-
 class AsteroidsGame
 {
 public:
@@ -29,7 +27,6 @@ public:
 	std::vector<Projectile> projectiles;
 	GameState state;
 	GameHud HUD;
-
 	ParticleSystem psystem;
 
 	std::vector<GameEntity> entities;
@@ -40,7 +37,8 @@ public:
 	GPU_Target* screen;
 	GPU_Image* internal_buffer;
 	GPU_Image* internal_buffer_burn_in;
-	
+	GPU_Image* flash;
+
 	Mix_Chunk* shoot_sound;
 	Mix_Chunk* asteroid_sound;
 	Mix_Chunk* warn_sound;
