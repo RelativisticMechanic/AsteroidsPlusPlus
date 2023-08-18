@@ -21,9 +21,12 @@ uint32_t loadShader(GPU_ShaderEnum type, const char* filename)
 	char* source = (char*)malloc((file_size + 1 /* 1 byte for '\0' */) * sizeof(char));
 	SDL_RWread(rwops, source, sizeof(char), file_size);
 	source[file_size] = '\0';
+	
+	std::string source_shader_with_version = std::string(source);
+	source_shader_with_version = "#version 330\n" + source_shader_with_version;
 
 	/* Compile the shader */
-	shader = GPU_CompileShader(type, source);
+	shader = GPU_CompileShader(type, source_shader_with_version.c_str());
 
 	/* Free resources */
 	free(source);
