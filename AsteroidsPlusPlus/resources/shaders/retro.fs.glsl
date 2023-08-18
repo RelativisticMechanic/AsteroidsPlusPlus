@@ -13,13 +13,13 @@ uniform float last_burn;
 uniform float current_burn;
 
 // Glow effect settings
-const float glow_size = 1 / 512.0;
+const float glow_size = 1.0 / 512.0;
 const float intensity = 1.5;
 const float flicker_fraction = 0.15;
 const float flicker_speed = 20.0;
 
 // Theme settings
-const vec3 accent_color = vec3(0.0, 0.4, 0.0);
+const vec3 accent_color = vec3(0.0, 0.3, 0.0);
 const vec4 frame_color = vec4(0.4, 0.4, 0.4, 1.0);
 const float background_brightness = 0.25;
 const float crt_noise_fraction = 0.10;

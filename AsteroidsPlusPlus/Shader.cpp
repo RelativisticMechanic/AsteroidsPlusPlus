@@ -23,7 +23,11 @@ uint32_t loadShader(GPU_ShaderEnum type, const char* filename)
 	source[file_size] = '\0';
 	
 	std::string source_shader_with_version = std::string(source);
+#ifdef EMSCRIPTEN_IMPLEMENTATION
+	source_shader_with_version = "#version 300 es\nprecision mediump float;\n" + source_shader_with_version;
+#else
 	source_shader_with_version = "#version 330\n" + source_shader_with_version;
+#endif
 
 	/* Compile the shader */
 	shader = GPU_CompileShader(type, source_shader_with_version.c_str());

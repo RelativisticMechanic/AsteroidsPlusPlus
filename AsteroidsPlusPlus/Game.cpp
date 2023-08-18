@@ -22,7 +22,7 @@ AsteroidsGame::AsteroidsGame(GPU_Target* screen)
 	GPU_ClearRGBA(this->flash->target, 128, 0, 0, 32);
 
 	this->retro_shader = Shader("resources/shaders/retro");
-	this->stars = Stars(screen->w, screen->h, 3, 0.0015);;
+	this->stars = Stars(screen->w, screen->h, 4, 0.0001);;
 	this->ship = SpaceShip(screen->w, screen->h);
 	this->psystem = ParticleSystem(glm::vec2(screen->w, screen->h), "resources/shaders/particle");
 
@@ -37,8 +37,8 @@ AsteroidsGame::AsteroidsGame(GPU_Target* screen)
 	this->asteroid_sound = Mix_LoadWAV("resources/sound/asteroid.wav");
 	this->destroyed_sound = Mix_LoadWAV("resources/sound/destroyed.wav");
 	this->warn_sound = Mix_LoadWAV("resources/sound/warn.wav");
-	this->song = Mix_LoadMUS("resources/sound/asteroids.mp3");
-	this->song_gameover = Mix_LoadMUS("resources/sound/over.mp3");
+	this->song = Mix_LoadMUS("resources/sound/asteroids.ogg");
+	this->song_gameover = Mix_LoadMUS("resources/sound/over.ogg");
 
 	GPU_SetLineThickness(this->line_thickness);
 }
@@ -90,7 +90,7 @@ void AsteroidsGame::GameFrame(float delta_time)
 		this->ship.velocity += SPACESHIP_ACCEL * delta_time * this->ship.look_at;
 		glm::vec2 new_velocity = -this->ship.look_at * 400.0f * RandRange(0.9, 1.0);
 		new_velocity += RandVec2(25.0f);
-		this->psystem.Add(Particle(this->ship.position, new_velocity, 2.0f));
+		this->psystem.Add(Particle(this->ship.position, new_velocity, 4.0f));
 	}
 
 	if (key_states['S'])
@@ -180,7 +180,7 @@ void AsteroidsGame::GameFrame(float delta_time)
 				/* Add some particles */
 				for (int i = 0; i < N_PARTICLES_ON_ASTEROID_EXPLODE; i++)
 				{
-					this->psystem.Add(Particle(projectile.position, RandVec2(200.0f), 4.0f));
+					this->psystem.Add(Particle(projectile.position, RandVec2(200.0f), 8.0f));
 				}
 
 				/* Play asteroid sound */

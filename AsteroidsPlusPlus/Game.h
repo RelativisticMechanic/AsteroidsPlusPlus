@@ -40,12 +40,14 @@ public:
 	GPU_Image* internal_buffer_burn_in;
 	GPU_Image* flash;
 
+#ifndef NO_MUSIC_IMPLEMENTATION
 	Mix_Chunk* shoot_sound;
 	Mix_Chunk* asteroid_sound;
 	Mix_Chunk* warn_sound;
 	Mix_Chunk* destroyed_sound;
 	Mix_Music* song;
 	Mix_Music* song_gameover;
+#endif
 
 	Timer burn_in_timer;
 	Timer cool_down_timer;

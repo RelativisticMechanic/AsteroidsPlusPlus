@@ -44,6 +44,9 @@ void MainLoop(void)
 		}
 		//game.Frame(delta_time);
 		GPU_Flip(screen);
+#ifdef EMSCRIPTEN_IMPLEMENTATION
+		emscripten_sleep(16);
+#endif
 		previous_time = current_time;
 		current_time = SDL_GetTicks64();
 	}
@@ -64,13 +67,11 @@ int main(int argc, char* argv[])
 	if (!screen || !window)
 		return -1;
 
-	float resolution_data[2] = { screen->w, screen->h };
-
 	/* Set Window Title */
 	SDL_SetWindowTitle(window, "Asteroids++");
 	
-#ifdef ENGINE2D_EMSCRIPTEN_IMPLEMENTATION
-	emscripten_set_main_loop(MainLoop, 0, 1);
+#ifdef EMSCRIPTEN_IMPLEMENTATION
+	emscripten_set_main_loop(MainLoop, 0, 0);
 #else
 	MainLoop();
 #endif
