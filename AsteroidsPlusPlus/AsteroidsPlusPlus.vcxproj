@@ -140,6 +140,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameHud.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SpaceShip.cpp" />
@@ -242,6 +243,7 @@
     <ClInclude Include="lib\SDL2_gpu\include\SDL_gpu_RendererImpl.h" />
     <ClInclude Include="lib\SDL2_gpu\include\SDL_gpu_version.h" />
     <ClInclude Include="lib\SDL2_mixer\include\SDL_mixer.h" />
+    <ClInclude Include="Particle.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpaceShip.h" />

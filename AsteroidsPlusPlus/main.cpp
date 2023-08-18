@@ -46,11 +46,12 @@ int main(int argc, char* argv[])
 
 		/* Clear and update screen every frame */
 		GPU_ClearColor(screen, { 0, 0, 0, 0 });
-		
-		game.Frame(delta_time);
-		
+		for (int i = 0; i < 5; i++)
+		{
+			game.Frame(delta_time / 5.0f);
+		}
+		//game.Frame(delta_time);
 		GPU_Flip(screen);
-
 		previous_time = current_time;
 		current_time = SDL_GetTicks64();
 	}

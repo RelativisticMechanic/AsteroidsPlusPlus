@@ -33,7 +33,7 @@ void SpaceShip::Frame(GPU_Target* t, float delta_time)
 		/* Lerp to 0 */
 		rotation_speed = Decay(rotation_speed, delta_time * SPACESHIP_ROTATION_DECAY_RATE);
 		/* Rotate */
-		this->look_at = Rotate2D(this->look_at, rotation_speed);
+		this->look_at = Rotate2D(this->look_at, rotation_speed * delta_time);
 	}
 	else
 	{
@@ -67,8 +67,6 @@ void SpaceShip::Frame(GPU_Target* t, float delta_time)
 	{
 		this->position.y = 0;
 	}
-
-
 	/* Calculate coordinates */
 	glm::vec2 v1 = (sqrtf(15.0f) * this->size / 3.0f) * this->look_at;
 
@@ -97,15 +95,18 @@ void SpaceShip::Frame(GPU_Target* t, float delta_time)
 
 		if (this->blinking_state)
 		{
-			GPU_Line(t, v1.x, v1.y, v2.x, v2.y, { 255, 255, 255, 255 });
-			GPU_Line(t, v2.x, v2.y, v3.x, v3.y, { 255, 255, 255, 255 });
-			GPU_Line(t, v1.x, v1.y, v3.x, v3.y, { 255, 255, 255, 255 });
+			GPU_Line(t, v1.x, v1.y, v2.x, v2.y, { 255, 0, 0, 255 });
+			GPU_Line(t, v1.x, v1.y, v3.x, v3.y, { 255, 0, 0, 255 });
+			GPU_Line(t, v2.x, v2.y, this->position.x, this->position.y, { 255, 0, 0, 255 });
+			GPU_Line(t, v3.x, v3.y, this->position.x, this->position.y, { 255, 0, 0, 255 });
+
 		}
 	}
 	else
 	{
 		GPU_Line(t, v1.x, v1.y, v2.x, v2.y, { 255, 255, 255, 255 });
-		GPU_Line(t, v2.x, v2.y, v3.x, v3.y, { 255, 255, 255, 255 });
 		GPU_Line(t, v1.x, v1.y, v3.x, v3.y, { 255, 255, 255, 255 });
-	}	
+		GPU_Line(t, v2.x, v2.y, this->position.x, this->position.y, { 255, 255, 255, 255 });
+		GPU_Line(t, v3.x, v3.y, this->position.x, this->position.y, { 255, 255, 255, 255 });
+	}
 }

@@ -17,6 +17,7 @@ AsteroidsGame::AsteroidsGame(GPU_Target* screen)
 	this->retro_shader = Shader("retro");
 	this->stars = Stars(screen->w, screen->h, 3, 0.0015);;
 	this->ship = SpaceShip(screen->w, screen->h);
+	this->psystem = ParticleSystem(glm::vec2(screen->w, screen->h), "particle");
 
 	this->burn_in_timer = Timer(2000);
 	this->cool_down_timer = Timer(PROJECTILE_COOLDOWN_MS);
@@ -42,11 +43,15 @@ void AsteroidsGame::IntroFrame(float delta_time)
 	}
 
 	this->AnimateTextOffset(delta_time);
-	
+	this->psystem.Update(delta_time);
+
 	GPU_DeactivateShaderProgram();
+	
 	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.33, this->internal_buffer->h * 0.35 + this->text_offset, 4.0f, "ASTEROIDS++");
 	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.33, this->internal_buffer->h * 0.45 + this->text_offset, 2.0f, "A game by Siddharth Gautam");
 	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.33, this->internal_buffer->h * 0.55 + this->text_offset, 2.0f, "Press <RETURN> to begin");
+	
+	this->psystem.Draw(this->internal_buffer->target);
 }
 
 void AsteroidsGame::GameOverFrame(float delta_time)
@@ -61,7 +66,7 @@ void AsteroidsGame::GameOverFrame(float delta_time)
 	GPU_DeactivateShaderProgram();
 	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.42f, this->internal_buffer->h * 0.35 + this->text_offset, 5.0f, "GAME");
 	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.42f, this->internal_buffer->h * 0.45 + this->text_offset, 5.0f, "OVER!");
-	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.20f, this->internal_buffer->h * 0.55 + this->text_offset, 2.0f, "Your spaceship was lost to the void of samsara.");
+	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.20f, this->internal_buffer->h * 0.55 + this->text_offset, 2.0f, "Your spaceship was casted to the void* of samsara.");
 	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.33f, this->internal_buffer->h * 0.65 + this->text_offset, 2.0f, "Press <RETURN> to go back");
 }
 
@@ -79,7 +84,12 @@ void AsteroidsGame::GameFrame(float delta_time)
 		this->ship.rotation_speed -= Clamp(SPACESHIP_ROTATION_ACCEL * delta_time, 0.0f, SPACESHIP_MAX_ROTATION_SPEED);
 
 	if (key_states['W'])
+	{
 		this->ship.velocity += SPACESHIP_ACCEL * delta_time * this->ship.look_at;
+		glm::vec2 new_velocity = -this->ship.look_at * 400.0f * RandRange(0.9, 1.0);
+		new_velocity += RandVec2(50.0f);
+		this->psystem.Add(Particle(this->ship.position, new_velocity, 4.0f));
+	}
 
 	if (key_states['S'])
 		this->ship.velocity -= SPACESHIP_ACCEL * delta_time * this->ship.look_at;
@@ -91,6 +101,7 @@ void AsteroidsGame::GameFrame(float delta_time)
 		this->cool_down_timer.Reset();
 	}
 
+	this->psystem.Update(delta_time);
 	/* Update Projectiles */
 	for (std::vector<Projectile>::iterator projectile = projectiles.begin(); projectile != projectiles.end(); /* */)
 	{
@@ -128,6 +139,12 @@ void AsteroidsGame::GameFrame(float delta_time)
 		{
 			if (glm::length((*asteroid).position - projectile.position) < ((*asteroid).radius + projectile.radius))
 			{
+				/* Add some particles */
+				for (int i = 0; i < N_PARTICLES_ON_ASTEROID_EXPLODE; i++)
+				{
+					this->psystem.Add(Particle(projectile.position, RandVec2(200.0f), 8.0f));
+				}
+
 				/* Play asteroid sound */
 				Mix_PlayChannel(-1, this->asteroid_sound, 0);
 				std::vector<Asteroid> two_new_asteroids = (*asteroid).Split(projectile.velocity);
@@ -136,6 +153,7 @@ void AsteroidsGame::GameFrame(float delta_time)
 					new_asteroids.push_back(two_new_asteroids[i]);
 				}
 				projectile.should_remove = true;
+
 				state.score += ASTEROID_SCORE_MULTIPLIER * (ASTEROID_DEFAULT_RADIUS / (*asteroid).radius);
 			}
 		}
@@ -187,6 +205,7 @@ void AsteroidsGame::GameFrame(float delta_time)
 		asteroid.Draw(this->internal_buffer->target);
 	}
 
+	this->psystem.Draw(this->internal_buffer->target);
 	HUD.Draw(this->internal_buffer->target, state);
 }
 void AsteroidsGame::Frame(float delta_time)
@@ -237,6 +256,8 @@ void AsteroidsGame::Reset(void)
 	this->asteroids.clear();
 	/* Clear projectiles */
 	this->projectiles.clear();
+	/* Clear particles */
+	this->psystem.Clear();
 	/* Reset score and lives */
 	this->state.Reset();
 }

@@ -11,12 +11,14 @@
 #include "BitmapFont.h"
 #include "GameState.h"
 #include "GameHud.h"
+#include "Particle.h"
 
 #include <map>
 
 #define ASTEROID_SCORE_MULTIPLIER 10
 #define MAX_ASTEROIDS 5
 #define BEGIN_TEXT_OFFSET 400.0f
+#define N_PARTICLES_ON_ASTEROID_EXPLODE 15
 
 class AsteroidsGame
 {
@@ -27,6 +29,8 @@ public:
 	std::vector<Projectile> projectiles;
 	GameState state;
 	GameHud HUD;
+
+	ParticleSystem psystem;
 
 	std::vector<GameEntity> entities;
 
