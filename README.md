@@ -2,7 +2,7 @@
 
 An Asteroids clone written in C++ and OpenGL.
 
-Play the Emscripten build [here](https://relativisticmechanic.github.io/asteroidsplusplus/)
+Play the Emscripten build [here](https://relativisticmechanic.github.io/asteroidsplusplus/).
 # Gameplay
 
 Use arrow keys / WASD to move the ship around (WS or Up/Down will thrust the ship forward and backward, A/D and Left/Right will change direction), space to shoot a projectile.
