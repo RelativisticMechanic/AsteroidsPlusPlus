@@ -8,7 +8,7 @@ Play the Emscripten build [here](https://relativisticmechanic.github.io/asteroid
 
 The motivation for this project came from this YouTube comment:
 
-![](./comment.png)
+<img src="comment.png" height="300" width="512">
 
 Asteroids is a simple enough game that many programmers would have worked as a programming exercise, similar to snake, or tetris. My clone wanted to do something different, at least on the graphical fidelity.
 
