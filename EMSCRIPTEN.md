@@ -35,13 +35,13 @@ emcc -r -O2 -s USE_WEBGL2=1 -s USE_SDL=2 -DSDL_GPU_DISABLE_GLES_1 -DSDL_GPU_DISA
 
 ```
 
-Right, that last command is a bit big, but essentially we compile with WebGL, SDL, and tell SDL2-GPU to compile only with GLES3 support. We think compile the appropriate *.c files, and suppress the "-Wno-incompatible-function-pointer-types" warning (as it causes compilation failure).
+Right, that last command is a bit big, but we compile with WebGL, SDL, and tell SDL2-GPU to compile only with GLES3 support. We think compile the appropriate *.c files, and suppress the "-Wno-incompatible-function-pointer-types" warning (as it causes compilation failure).
 
-Now, we have a file called `libSDL2_gpu.bc` which is LLVM bytecode. It's essentially a static library.
+Now, we have a file called `libSDL2_gpu.bc` which is LLVM bytecode. It's a static library, like a `.a` file.
 
 ## Modifying your program to work with Emscripten
 
-Again, fairly straight forward, it essentially required some modifications to `main.cpp`:
+Again, straight forward, it just required some modifications to `main.cpp`:
 
 ```c++
 
@@ -88,7 +88,7 @@ Now, we are ready to compile the program for Emscripten.
 
 ## Compiling the program for Emscripten
 
-Fairly self-explanatory script, important bits are allowing memory growth, and asyncify.
+This is a self-explanatory script, important bits are allowing memory growth, and asyncify. We also enable the macro "-DEMSCRIPTEN_IMPLEMENTATION" which is what we are checking for in our code to have Emscripten specific code.
 
 ```bash
 
@@ -102,13 +102,13 @@ em++ -I$EMSCRIPTEN_SDL2_INCLUDE_DIR -I$GLM_INCLUDE_DIR $CFLAGS $CPP_FILES $EMSCR
 
 ```
 
-Okay, we had an index.html that could now be hosted through an HTTP server. I hit up `python -m http.server` and had my program hosted on the localhost.
+And we now have an index.html with some WASM and JS files that could be hosted on an HTTP server. I hit up `python -m http.server` and had my program hosted on the localhost.
 
 ## WebGL woes
 
-So, the first time I got my program compiled, WebGL crashed with various shader errors, the prominent issue was:
+So, the first time I ran Asteroids++ under WebGL, WebGL crashed with various shader errors, the prominent issues were:
 
-- Version error (most of my shader code started with `"#version 330"`)
+- Version errors (most of my shader code started with `"#version 330"`)
 - Using terms like `attribute` and `varying` versus `in` and `out`.
 - Floating point precision errors.
 
@@ -131,7 +131,7 @@ Now that, combined with some explicit floating point numbers (WebGL screams when
 
 ## Music
 
-The initial format used by the music files was MP3, but Emscripten's SDL2_mixer implementation does not support that. So essentially, we were left with turning all MP3s into OGGs. 
+The initial format used by the music files was MP3, but Emscripten's SDL2_mixer implementation does not support that. So essentially, we were left with turning all MP3s into OGGs.  
 
 ## That's it.
 
