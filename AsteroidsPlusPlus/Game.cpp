@@ -67,14 +67,17 @@ void AsteroidsGame::GameOverFrame(float delta_time)
 	{
 		this->BeginGame();
 	}
+
+	std::string score_string = "SCORE: " + std::to_string(this->state.score);
 	
 	this->AnimateTextOffset(delta_time);
 
 	GPU_DeactivateShaderProgram();
-	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.42f, this->internal_buffer->h * 0.35 + this->text_offset, 5.0f, "GAME");
-	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.42f, this->internal_buffer->h * 0.45 + this->text_offset, 5.0f, "OVER!");
-	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.20f, this->internal_buffer->h * 0.55 + this->text_offset, 2.0f, "Your spaceship was casted to the void* of samsara.");
-	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.33f, this->internal_buffer->h * 0.65 + this->text_offset, 2.0f, "Press <RETURN> to go back");
+	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.42f, this->internal_buffer->h * 0.35f + this->text_offset, 5.0f, "GAME");
+	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.42f, this->internal_buffer->h * 0.45f + this->text_offset, 5.0f, "OVER!");
+	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.20f, this->internal_buffer->h * 0.55f + this->text_offset, 2.0f, "Your spaceship was casted to the void* of samsara.");
+	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.35f, this->internal_buffer->h * 0.65f + this->text_offset, 4.0f, score_string.c_str());
+	HUD.font.DrawText(this->internal_buffer->target, this->internal_buffer->w * 0.33f, this->internal_buffer->h * 0.75f + this->text_offset, 2.0f, "Press <RETURN> to go back");
 }
 
 void AsteroidsGame::GameFrame(float delta_time)
