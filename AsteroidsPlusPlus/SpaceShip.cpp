@@ -8,7 +8,8 @@ SpaceShip::SpaceShip(int SCREEN_W, int SCREEN_H)
 {
 	this->position = glm::vec2(SCREEN_W / 2, SCREEN_H / 2);
 	this->look_at = glm::vec2(1.0, 0.0);
-	this->size = 30.0;
+	this->size = SPACESHIP_DEFAULT_RADIUS;
+	this->radius = this->size;
 	this->rotation_speed = 0.0f;
 	this->velocity = glm::vec2(0.0f, 0.0f);
 	this->toggle_blink_timer = Timer(SPACESHIP_HIT_COOLDOWN_TIME_MS);
